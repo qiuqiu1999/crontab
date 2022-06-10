@@ -2,7 +2,6 @@ package worker
 
 import (
 	"context"
-	"fmt"
 	"github.com/coreos/etcd/clientv3"
 	"github.com/qiuqiu1999/crontab/common"
 	"time"
@@ -94,7 +93,7 @@ func (jobLock *JobLock) TryLock() (err error) {
 	// 6, 成功返回, 失败释放租约
 	if !txnResp.Succeeded { // 锁被占用
 		err = common.ERR_LOCK_ALREADY_REQUIRED
-		fmt.Printf("锁被占用...%d\n", time.Now().Unix())
+		//fmt.Printf("抢占锁失败%d\n", time.Now().Unix())
 		goto FAIL
 	}
 
@@ -102,7 +101,6 @@ func (jobLock *JobLock) TryLock() (err error) {
 	jobLock.leaseId = leaseId
 	jobLock.cancelFunc = cancelFunc
 	jobLock.isLocked = true
-	fmt.Printf("抢锁成功...%d\n", time.Now().Unix())
 	return
 
 FAIL:
@@ -117,6 +115,5 @@ func (jobLock *JobLock) Unlock() {
 		time.Sleep(5 * time.Second)                           //
 		jobLock.cancelFunc()                                  // 取消我们程序自动续租的协程
 		jobLock.lease.Revoke(context.TODO(), jobLock.leaseId) // 释放租约
-		defer fmt.Printf("释放锁...%d\n", time.Now().Unix())
 	}
 }
