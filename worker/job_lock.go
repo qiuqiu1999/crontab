@@ -42,8 +42,8 @@ func (jobLock *JobLock) TryLock() (err error) {
 		txnResp        *clientv3.TxnResponse
 	)
 
-	// 1, 创建租约(5秒)
-	if leaseGrantResp, err = jobLock.lease.Grant(context.TODO(), 5); err != nil {
+	// 1, 创建租约(3秒)
+	if leaseGrantResp, err = jobLock.lease.Grant(context.TODO(), 3); err != nil {
 		return
 	}
 
